@@ -6,7 +6,7 @@ AceSlideII HTML演示文档工具
 
 
 '''
-<a href="javascript:(function(){ var n=document.createElement('script'); n.type='text/javascript'; n.src='http://localhost:8888/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); var n2=document.createElement('script'); n2.type='text/javascript'; n2.src='http://localhost:8888/ace-slide-II.js'; document.getElementsByTagName('head')[0].appendChild(n2); })();">点我演示此文档</a>
+<a href="javascript:(function(){ var n=document.createElement('script'); n.type='text/javascript'; n.src='http://lib.sinaapp.com/js/dojo/1.6.0/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); var n2=document.createElement('script'); n2.type='text/javascript'; n2.src='http://zouyesheng.com/static/ace-slide-II.js'; document.getElementsByTagName('head')[0].appendChild(n2); })();">点我演示此文档</a>
 '''
 
 - Right / Space, 下一页
@@ -76,7 +76,7 @@ var split_body = dojo.hitch({frames: frames},
 这过程, 不需要手动改原始的 HTML 文件. 只需要添加一个书签就可以搞定. 比如, 把:
 
 '''
-<a href="javascript:(function(){ var n=document.createElement('script'); n.type='text/javascript'; n.src='http://localhost:8888/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); var n2=document.createElement('script'); n2.type='text/javascript'; n2.src='http://localhost:8888/ace-slide-II.js'; document.getElementsByTagName('head')[0].appendChild(n2); })();">演示此文档</a>
+<a href="javascript:(function(){ var n=document.createElement('script'); n.type='text/javascript'; n.src='http://lib.sinaapp.com/js/dojo/1.6.0/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); var n2=document.createElement('script'); n2.type='text/javascript'; n2.src='http://zouyesheng.com/static/ace-slide-II.js'; document.getElementsByTagName('head')[0].appendChild(n2); })();">演示此文档</a>
 '''
 
 收藏到书签栏, 需要时点一下就可以了(你直接点击也行). 
