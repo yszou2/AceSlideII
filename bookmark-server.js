@@ -1,0 +1,1 @@
+javascript: (function(){var ip=prompt('Server')||''; if(ip==''){return} var pass=prompt('Password')||''; var name=prompt('Name')||''; if(ip==''||pass==''||name==''){return} var n=document.createElement('script'); n.type='text/javascript'; n.src='http://' + ip + '/reg?ip=' + ip + '&pass=' + pass + '&name=' + name; document.getElementsByTagName('head')[0].appendChild(n); })();
