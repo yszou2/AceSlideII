@@ -79,7 +79,6 @@ dojo.addOnLoad(function(){
     var node_list = dojo.query('script');
     dojo.destroy(node_list[0]); //reg
     dojo.destroy(node_list[2]); //upload
-    dojo.destroy(dojo.byId('_as')); //server control
     dojo.create('script',
         {innerHTML: "'^^^^ACE-SLIDE-II.JS^^^^'"}, dojo.query('script')[0], 'after');
     var data = encodeURIComponent(dojo.doc.documentElement.innerHTML);
