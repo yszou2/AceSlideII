@@ -1,0 +1,106 @@
+AceSlideII HTML演示文档工具
+邹业盛
+%%mtime(%Y-%m-%d %H:%M)
+%!encoding: utf-8
+%%toc
+
+
+'''
+<a href="javascript:(function(){ var n=document.createElement('script'); n.type='text/javascript'; n.src='http://localhost:8888/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); var n2=document.createElement('script'); n2.type='text/javascript'; n2.src='http://localhost:8888/ace-slide-II.js'; document.getElementsByTagName('head')[0].appendChild(n2); })();">点我演示此文档</a>
+'''
+
+- Right / Space, 下一页
+- Left / Back, 上一页
+- Tab, 左下角显示页数列表
+- 鼠标拖画
+- R, 清除标记
+
+(请使用浏览器的缩放功能放大页面)
+
+
+=功能=
+
+- 使用普通的 HTML 文档.
+- 一键转换文档为演示模式.
+- 一个 Canvas 层用以手写标记.
+- 通过一个 Web 服务器支持联机操作.
+- 支持手机浏览, 控制.
+
+
+=普通 HTML 文档=
+
+使用 HTML 作演示文档的项目不少, 比如我之前的 AceSlide (https://github.com/AceFantasy/AceSlide) 也是这样的一个东西.
+
+但是在使用过程当中, 我觉得这些东西用起来并不好用:
+
+- **必须手工书写 HTML 代码**
+
+
+这点很麻烦. 事实上本质就变成需要用 HTML 写一个特定的文件.
+
+考虑另外的情况, 我们很多人会用 HTML 写文档, 写博客什么的. 但是很少人是直接写 HTML 代码的. 相应地, 我们会使用 markdown , txt2tags , reSt 这些标记语言来写. 然后再转换成 HTML . 这样做的还有一个好处就是, 我们写的文档, 除了可以转换成 HTML 之外, 还可以转换成其它格式的文件, 比如 LaTeX , DocBook 等.
+
+那么我就想, 我们应该用这些简单的标记语言来写演示文档. 更进一步, 我们转换出来的 HTML 文件, 通过一些格式的小调整, 就可以直接用于演示.
+
+于是, 最后我就在我自己定制的 txt2tags 转换出来的 HTML 基础上, 通过一些简单的 js , 实现了一套完整的演示文档工具.
+
+--------------------------------------------------------
+
+这套工具 AceSlideII 与其它工具, 比如 AceSlide 最大的不同之处, 在于, 其它工具是要求 HTML 来适应工具. 而 AceSlideII 力求做到的是它去适应各种 HTML . 也就是说, 现在你们看的这份文档, 可以变成演示模式, 只是 AceSlideII 适应了我的 txt2tags 转换出来的 HTML 而已. 通过简单的解析代码, 每个人都可以让它适应其它的 HTML 格式. Discuz 的论坛, 微博页面, 都没有问题.
+
+代码上来看, 所要做的, 仅仅是重写 ``split_body`` 这个方法.
+
+```
+//把body下的第一个节点分切,并隐藏全部结点
+//这是一个初始化方法
+var split_body = dojo.hitch({frames: frames},
+  function(width, height){
+    var frame = [];
+    var that = this;
+
+    //最外层的那个div
+    var wrapper = dojo.body().children[0];
+    dojo.style(dojo.body(), 'backgroundImage', 'none');
+    that.frames.width = width;
+    that.frames.height = height;
+    dojo.style(wrapper, 'width', width + 'px');
+    ...
+```
+
+=一键转换=
+
+前面说了, AceSlideII 力求做到去适应 HTML 文件. 那么, 也就很容易地实现, 将 AceSlideII 添加到已存在的 HTML 文件之外, 达到转换的目的. 
+
+这个转换过程, 实际就是引入两个 js 文件. 然后 js 在当前的 HTML 上下文执行, 结果就是我们需要的演示文件了. 
+
+这过程, 不需要手动改原始的 HTML 文件. 只需要添加一个书签就可以搞定. 比如, 把:
+
+'''
+<a href="javascript:(function(){ var n=document.createElement('script'); n.type='text/javascript'; n.src='http://localhost:8888/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); var n2=document.createElement('script'); n2.type='text/javascript'; n2.src='http://localhost:8888/ace-slide-II.js'; document.getElementsByTagName('head')[0].appendChild(n2); })();">演示此文档</a>
+'''
+
+收藏到书签栏, 需要时点一下就可以了(你直接点击也行). 
+
+
+=联机功能=
+
+项目中的一个 Tornado 实现的服务器端. 服务器启动之后, 可以把任意一个文档接入服务器.
+
+这时, js 会自动上传页面内容, 然后页面会重定向到服务器的路径.
+
+在服务器支持的情况下, 可以使用同一份文档的联机操作.
+
+接入的客户端分成"控制端"和"浏览端"两种.
+
+控制端可以随意控制文档, 它做的所有操作(翻页, 标记), 都会在所有的浏览端同步呈现.
+
+控制端也可以有多个.
+
+
+=手机端支持=
+
+项目中添加了对手机浏览器的有限支持. 配合上面的联机功能, 可以实现在手机端控制页面的翻页.
+
+这样, 演示时人拿着手机就可以随意走动了.
+
+当然, 需要在 AceSlideII 中使用专业的摇控工具我觉得也很容易扩展吧.
