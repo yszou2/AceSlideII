@@ -58,7 +58,7 @@ define(['dojo/dom-style', 'dojo/_base/window'],
       }
 
       frame.length > 0 ? frames.push(frame) : {};
-      frames[0].length == 0 ? frames.shift() : {};
+      (frames.length > 0 && frames[0].length == 0) ? frames.shift() : {};
 
       return frames;
     }
