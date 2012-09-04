@@ -10,19 +10,17 @@ var AceSlideII_Init = function(){
     } else {
       window.AceSlideII = true;
     }
-    require([  'dojo/domReady'
-             , 'dojo/_base/config'
-             , 'AceSlideII/sub.js'
-             , 'AceSlideII/canvas.js'
-             , 'AceSlideII/frames.js'
-             , 'AceSlideII/keys.js'
-             , 'AceSlideII/mobile.js'
+    require([  'dojo/_base/config'
+             , 'AceSlideII/sub'
+             , 'AceSlideII/canvas'
+             , 'AceSlideII/frames'
+             , 'AceSlideII/keys'
+             , 'AceSlideII/mobile'
+             , 'dojo/domReady!'
             ],
-      function(ready, config, sub, canvas, frames){
-        ready(function(){
-          sub(frames(config.fw, config.fh), canvas(config.fw, config.fh));
-          console.log('AceSlideII is OK');
-        });
+      function(config, sub, canvas, frames){
+        sub(frames(config.fw, config.fh), canvas(config.fw, config.fh));
+        console.log('AceSlideII is OK');
       }
     ); 
   }

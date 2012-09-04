@@ -1,6 +1,6 @@
 //消息订阅
 define(['dojo/_base/connect', 'dojo/dom-style', 'dojo/dom-construct',
-        'dojo/_base/window', 'AceSlideII/canvas.js'],
+        'dojo/_base/window', './canvas'],
   function(conn, style, cstr, win, create_canvas){
     var sub = function(frames, canvas){
       var curr = {canvas: canvas}
