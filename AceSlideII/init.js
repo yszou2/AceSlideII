@@ -1,7 +1,7 @@
 var AceSlideII_Init = function(){
   if((typeof require) == 'undefined'){
     setTimeout(AceSlideII_Init, 200);
-    return
+    return;
   } else {
     console.log('AceSlideII is starting ...');
     if(window.AceSlideII){
