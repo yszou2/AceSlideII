@@ -1,28 +1,21 @@
-var AceSlideII_Init = function(){
-  if((typeof require) == 'undefined'){
-    setTimeout(AceSlideII_Init, 200);
-    return;
-  } else {
+//初始化函数
+
+define([], function(){
+  var init = function(obj){
+    var fw = obj.width || 600;
     console.log('AceSlideII is starting ...');
-    if(window.AceSlideII){
-      console.log('AceSlideII has existed.');
-      return;
-    } else {
-      window.AceSlideII = true;
-    }
-    require([  'dojo/_base/config'
-             , 'AceSlideII/sub'
+    require([  'AceSlideII/sub'
              , 'AceSlideII/canvas'
              , 'AceSlideII/frames'
              , 'AceSlideII/keys'
              , 'AceSlideII/mobile'
              , 'dojo/domReady!'
             ],
-      function(config, sub, canvas, frames){
-        sub(frames(config.fw, config.fw * screen.height / screen.width), canvas());
+      function(sub, canvas, frames){
+        sub(frames(fw, fw * screen.height / screen.width), canvas());
         console.log('AceSlideII is OK');
       }
     ); 
   }
-}
-AceSlideII_Init();
+  return init;
+});
