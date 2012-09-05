@@ -16,18 +16,34 @@ define([], function(){
                                         , left: screen.width / 2 - (150 / 2) + 'px'}},
                         document.body, 'last');
     var fw = obj.width || 600;
-    console.log('AceSlideII is starting ...');
-    require([  'AceSlideII/sub'
+    console.log('[ASII]AceSlideII is starting ...');
+    require([  'AceSlideII/rules/_rules'
+             , 'AceSlideII/sub'
              , 'AceSlideII/canvas'
              , 'AceSlideII/frames'
              , 'AceSlideII/keys'
              , 'AceSlideII/mobile'
              , 'dojo/domReady!'
             ],
-      function(sub, canvas, frames){
-        setTimeout(function(){cstr.destroy(n)}, 1000);
-        sub(frames(fw, fw * screen.height / screen.width), canvas());
-        console.log('AceSlideII is OK');
+      function(rules, sub, canvas, frames){
+
+        var r = null;
+        for(var i = 0, l = rules.length; i < l; i++){
+          if(rules[i][0].exec(window.location.href)){
+            r = rules[i][1];
+            break;
+          }
+        }
+
+        console.log('[ASII]Select Rule: ' + r);
+        require(['AceSlideII/rules/' + (r || 'default')], function(rule){
+          rule(function(){
+            setTimeout(function(){cstr.destroy(n)}, 1000);
+            sub(frames(fw, fw * screen.height / screen.width), canvas());
+            console.log('[ASII]AceSlideII is OK');
+          });
+        });
+
       }
     ); 
   }
