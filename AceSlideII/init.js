@@ -8,7 +8,7 @@ define([], function(){
                                         , backgroundColor: '#DBF7F9'
                                         , border: '1px solid #008793'
                                         , padding: '5px'
-                                        , width: '150px'
+                                        , width: '250px'
                                         , height: '16px'
                                         , lineHeight: '16px'
                                         , position: 'absolute'
