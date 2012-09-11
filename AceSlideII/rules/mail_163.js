@@ -10,6 +10,8 @@ define(['dojo/dom', 'dojo/query', 'dojo/dom-construct', 'dojo/_base/window'],
         var name = item.children[2].children[0].children[0].children[0].innerHTML;
         users.push([name, mbox]);
       });
+      cstr.empty(win.body());
+      cstr.create('div', {}, win.body(), 'first');
       return users;
     }
 
@@ -26,6 +28,8 @@ define(['dojo/dom', 'dojo/query', 'dojo/dom-construct', 'dojo/_base/window'],
       form.innerHTML += '<input type="hidden" name="nickname" value="' + name + '" />';
       form.innerHTML += '<input type="hidden" name="personalemail" value="' + mbox + '" />';
       form.submit();
+      cstr.create('p', {innerHTML: name + ' >> ' + mbox + ' ... ok'},
+                  win.body().children[0], 'last');
     }
 
     var rule = function(callback){
