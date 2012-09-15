@@ -18,7 +18,7 @@ define(['dojo/dom-construct'], function(cstr){
                         document.body, 'last');
     var fw = obj.width || 600;
     console.log('[ASII]AceSlideII is starting ...');
-    require([  'AceSlideII/rules/_rules'
+    require([  'AceSlideII/rules/0rules'
              , 'AceSlideII/sub'
              , 'AceSlideII/canvas'
              , 'AceSlideII/frames'
