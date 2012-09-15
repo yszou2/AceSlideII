@@ -5,6 +5,7 @@ import os
 import uuid
 import functools
 from os.path import join
+from urllib import unquote
 
 import tornado.httpserver
 import tornado.ioloop
@@ -35,96 +36,51 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_header('Connection', 'close')
         super(BaseHandler, self).finish(*args, **kargs)
 
+
 class TestHandler(BaseHandler):
     def get(self):
         return self.write('it works!')
 
 
-class DojoHandler(BaseHandler):
-    '获取Dojo的文件'
-
-    def get(self):
-        with open(join(os.path.dirname(__file__), 'dojo.js'), 'rb') as f:
-            data = f.read()
-        self.set_header('Content-Type', 'text/javascript');
-        return self.write(data)
-
-
-class AceSlideHandler(BaseHandler):
-    '获取ace-slide-II文件'
-
-    def get(self):
-        with open(join(os.path.dirname(__file__), 'ace-slide-II.js'), 'rb') as f:
-            data = f.read()
-        self.set_header('Content-Type', 'text/javascript');
-        return self.write(data)
-
-
-class ControlHandler(BaseHandler):
-    '获取control文件'
-
-    def get(self):
-        with open(join(os.path.dirname(__file__), 'control.js'), 'rb') as f:
-            data = f.read()
-        self.set_header('Content-Type', 'text/javascript');
-        return self.write(data)
-
-
 class UploadHandler(BaseHandler):
-    '''接收上传的数据,先返回一串js代码去掉多余的script,
-    再上传,再返回重定向js代码'''
+    '''接收上传的数据'''
 
-    JS = '''
-dojo.addOnLoad(function(){
-    var node_list = dojo.query('script');
-    dojo.destroy(node_list[0]); //reg
-    dojo.destroy(node_list[2]); //upload
-    dojo.create('script',
-        {innerHTML: "'^^^^ACE-SLIDE-II.JS^^^^'"}, dojo.query('script')[0], 'after');
-    var data = encodeURIComponent(dojo.doc.documentElement.innerHTML);
-    dojo.create('script',
-        {src: 'http://%(ip)s/upload?_method=post&name=%(name)s&pass=%(password)s' + '&data=' + data, type: 'text/javascript'}, dojo.query('script')[0], 'before');
-});
-    '''
-
-    def get(self):
-        name = self.get_argument('name', '')
-        password = self.get_argument('pass', '')
-        self.set_header('Content-Type', 'text/javascript')
-        return self.write(self.__class__.JS % {'name': name,
-                                               'password': password,
-                                               'ip': RegisterHandler.SLIDE[name]['ip']})
+    SLIDE = []
 
     def post(self):
-        name = self.get_argument('name', '')
-        password = self.get_argument('pass', '')
-        data = self.get_argument('data', '')
-        self.set_header('Content-Type', 'text/javascript')
-        if not (name and password):
-            return self.write('alert("缺少参数");')
-
-        if name not in RegisterHandler.SLIDE:
-            return self.write('alert("错误的名字");')
-
-        obj = RegisterHandler.SLIDE[name]
-        if obj.get('password', '') != password:
-            return self.write('alert("错误的密码");')
-
-        obj['data'] = '<!DOCTYPE html><html>%s</html>' % \
-                        data.replace("<script>'^^^^ACE-SLIDE-II.JS^^^^'</script>",
-         '<script type="text/javascript" src="http://%(ip)s/ace-slide-II.js"></script><script type="text/javascript" src="http://%(ip)s/control.js"></script>' % {'ip': obj['ip']}, 1)
-        return self.write('window.location.href="http://%(ip)s/%(name)s"' % obj)
+        password = self.get_argument('password', '')
+        data = unquote(self.get_argument('data', '')).encode('iso-8859-1').decode('utf8')
+        data = data.replace('</head>',
+            '''
+            <script type="text/javascript">
+              window.dojoConfig = {
+                  async: true
+                , packages: [
+                  {name: 'AceSlideII', location: '/static'}
+                ]
+                , deps: ['AceSlideII/init', 'AceSlideII/control']
+                , callback: function(init, control){
+                  init({width: 600});
+                }
+              };
+            </script>
+            <script type="text/javascript" src="/dojo/dojo/dojo.js"></script>
+            </head>''')
+        cls = self.__class__
+        cls.SLIDE.append({'data':'<!DOCTYPE html><html>%s</html>' % data,
+                          'password': password})
+        return self.redirect('/%s' % (len(cls.SLIDE) - 1))
 
 
 class SlideHandler(BaseHandler):
     '返回一个文档的内容'
 
-    def get(self, name):
-        if name not in RegisterHandler.SLIDE:
+    def get(self, id):
+        id = int(id)
+        if id >= len(UploadHandler.SLIDE):
             return self.send_error(404)
 
-        return self.write(RegisterHandler.SLIDE[name]['data'])
-
+        return self.write(UploadHandler.SLIDE[id]['data'])
 
 
 class PullHandler(BaseHandler):
@@ -134,27 +90,30 @@ class PullHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def post(self):
-        name = self.get_argument('name', '')
+        id = self.get_argument('id', '')
         sync = self.get_argument('sync', '-1')
-        if not name or (name not in RegisterHandler.SLIDE):
+        if not id or (int(id) >= len(UploadHandler.SLIDE)):
             return self.finish({'result': 1, 'msg': u'错误的名字'})
+        else:
+            id = int(id)
+
         try:
             sync = int(sync)
         except ValueError:
             return self.finish({'result': 2, 'msg': u'sync参数错误'})
         sync += 1
 
-        cmd_list = PushHandler.CMD.get(name, [])
+        cmd_list = PushHandler.CMD.get(id, [])
 
         if sync == len(cmd_list):
             #最新情况
             cls = self.__class__
             self.sync = sync
-            self.name = name
-            if name in cls.CONN:
-                cls.CONN[name].append(self)
+            self.id = id
+            if id in cls.CONN:
+                cls.CONN[id].append(self)
             else:
-                cls.CONN[name] = [self]
+                cls.CONN[id] = [self]
             return
 
         if sync > len(cmd_list):
@@ -163,8 +122,9 @@ class PullHandler(BaseHandler):
             return_list = cmd_list[sync:]
         return self.finish({'result': 0, 'msg': '', 'cmd_list': return_list, 'sync': len(cmd_list) - 1})
 
+
     def release(self):
-        cmd_list = PushHandler.CMD.get(self.name, [])
+        cmd_list = PushHandler.CMD.get(self.id, [])
         return_list = cmd_list[self.sync:]
         try:
             return self.finish({'result': 0, 'msg': '', 'cmd_list': return_list, 'sync': len(cmd_list) - 1})
@@ -190,30 +150,28 @@ class PushHandler(BaseHandler):
         if token not in cls.TOKEN:
             return self.write({'result': 1, 'msg': u'token错误'})
 
-        name = cls.TOKEN[token]
-        if name not in cls.CMD:
-            cls.CMD[name] = [cmd]
+        id = cls.TOKEN[token]
+        if id not in cls.CMD:
+            cls.CMD[id] = [cmd]
         else:
-            cls.CMD[name].append(cmd)
+            cls.CMD[id].append(cmd)
 
-        [conn.release() for conn in PullHandler.CONN.get(name, [])]
-        PullHandler.CONN[name] = []
+        [conn.release() for conn in PullHandler.CONN.get(id, [])]
+        PullHandler.CONN[id] = []
         return self.write({'result': 0, 'msg': ''})
 
     def apply(self):
         '申请push的token'
-        name = self.get_argument('name', '')
-        password = self.get_argument('pass', '')
-
-        if not (name and password):
+        id = self.get_argument('id', '')
+        password = self.get_argument('password', '')
+        if not id:
             return self.write({'result': 1, 'msg': u'缺少参数'})
-        if name not in RegisterHandler.SLIDE:
-            return self.write({'result': 2, 'msg': u'不存在的项目名'})
-        if password != RegisterHandler.SLIDE[name]['password']:
+        if int(id) >= len(UploadHandler.SLIDE):
+            return self.write({'result': 2, 'msg': u'不存在的项目'})
+        if password != UploadHandler.SLIDE[int(id)]['password']:
             return self.write({'result': 3, 'msg': u'密码错误'})
-
         token = uuid.uuid4().hex
-        self.__class__.TOKEN[token] = name
+        self.__class__.TOKEN[token] = int(id)
         return self.write({'result': 0, 'msg': '', 'token': token})
 
 
@@ -231,60 +189,23 @@ class IndexHandler(BaseHandler):
     ''')
 
     def get(self):
-        slide_list = RegisterHandler.SLIDE.keys()
+        slide_list = len(UploadHandler.SLIDE)
         conns = {}
-        for k in slide_list:
-            conns[k] = len(PullHandler.CONN.get(k, []))
+        for i in range(len(UploadHandler.SLIDE)):
+            conns[i] = len(PullHandler.CONN.get(i, []))
 
         r = self.__class__.TEMPLATE.generate(conns=conns)
         return self.write(r)
 
 
-class RegisterHandler(BaseHandler):
-    '''注册一个新实例,返回一串js代码'''
-
-    JS = '''
-var n=document.createElement('script');
-n.type='text/javascript';
-n.src='http://%(ip)s/dojo.js';
-document.getElementsByTagName('head')[0].appendChild(n);
-var n2=document.createElement('script');
-n2.type='text/javascript';
-n2.src='http://%(ip)s/upload?name=%(name)s&pass=%(password)s';
-document.getElementsByTagName('head')[0].appendChild(n2);
-    '''
-    SLIDE = {}
-
-    def get(self):
-        ip = self.get_argument('ip', '')
-        password = self.get_argument('pass', '')
-        name = self.get_argument('name', '')
-
-        self.set_header('Content-Type', 'text/javascript');
-
-        if not (ip and password and name):
-            return self.write('alert("缺少参数");')
-        else:
-            if name in self.__class__.SLIDE:
-                return self.write('alert("此名字已被使用");')
-            else:
-                obj = {'name': name, 'ip': ip, 'password': password, 'data': None}
-                self.__class__.SLIDE[name] = obj
-            return self.write(self.__class__.JS % obj)
-
 
 Handlers = (
     ("/", IndexHandler),
     ("/dojo/(.*)", tornado.web.StaticFileHandler, {'path': DOJO}),
-
-    ("/dojo.js", DojoHandler),
-    ("/ace-slide-II.js", AceSlideHandler),
-    ("/control.js", ControlHandler),
-    ("/reg", RegisterHandler),
     ("/upload", UploadHandler),
+    ("/(\d+)", SlideHandler),
     ("/pull", PullHandler),
     ("/push", PushHandler),
-    ("/(.+)", SlideHandler),
 
     ("/test", TestHandler),
 )
@@ -296,12 +217,11 @@ class Application(tornado.web.Application):
             cookie_secret="}x3iu3b}N}k0m9c*",
             login_url="/login",
             xsrf_cookies=False,
-            static_path = os.path.join(os.path.dirname(__file__), "static"),
+            static_path=os.path.dirname(os.path.abspath(__file__)),
             template_path = os.path.join(os.path.dirname(__file__), "template"),
             debug=True,
         )
         tornado.web.Application.__init__(self, Handlers, **settings)
-
 
 def main():
     http_server = tornado.httpserver.HTTPServer(Application(), xheaders=True)

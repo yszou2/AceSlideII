@@ -1,7 +1,8 @@
 //初始化函数
 
-define([], function(){
-  var init = function(obj, cstr){
+define(['dojo/dom-construct'], function(cstr){
+  var cstr = cstr;
+  var init = function(obj){
     var n = cstr.create('div', {innerHTML: 'AceSlideII is loading ...',
                                 style: {  color: '#015F68'
                                         , fontSize: '14px'
@@ -11,9 +12,9 @@ define([], function(){
                                         , width: '250px'
                                         , height: '16px'
                                         , lineHeight: '16px'
-                                        , position: 'absolute'
+                                        , position: 'fixed'
                                         , top: '5px'
-                                        , left: screen.width / 2 - (150 / 2) + 'px'}},
+                                        , left: screen.width / 2 - (250 / 2) + 'px'}},
                         document.body, 'last');
     var fw = obj.width || 600;
     console.log('[ASII]AceSlideII is starting ...');
