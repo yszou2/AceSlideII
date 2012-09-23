@@ -1,13 +1,109 @@
-AceSlideII HTML演示文档工具
+AceSlideII 演示文档工具
 邹业盛
 %%mtime(%Y-%m-%d %H:%M)
 %!encoding: utf-8
 %%toc
 
 
-'''
-<a href="javascript: (function(){ if((typeof dojo) != 'undefined'){return} window.dojoConfig = { async: true , packages: [ {name: 'AceSlideII', location: 'http://localhost:8000'} ] , deps: ['AceSlideII/init'] , callback: function(init){ init({width: 600}); } }; var n = document.createElement('script'); n.type='text/javascript'; n.src='http://ajax.googleapis.com/ajax/libs/dojo/1.8.0/dojo/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); })();">点我演示此文档</a>
-'''
+=为什么要做它=
+
+用 HTML + JS 来做演示文档不是什么新鲜事了：
+
+- S5 http://meyerweb.com/eric/tools/s5/s5-intro.html
+- impress.js http://bartaz.github.com/impress.js/
+- deck.js http://imakewebthings.com/deck.js/
+- webSlide http://ksky521.github.com/webSlide/
+- AceSlide http://zouyesheng.sinaapp.com/static/AceSlide/slide.html
+
+
+你看到了很炫的页面，让你满怀欣喜。
+
+于是你准备自己去大干一场……
+
+
+--------------------------------------------------------
+
+impress.js
+
+```
+<div id="bored" class="step slide" data-x="-1000" data-y="-1500">
+    <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
+</div>
+
+<div class="step slide" data-x="0" data-y="-1500">
+    <q>Don't you think that presentations given <strong>in modern browsers</strong> shouldn't <strong>copy the limits</strong> of 'classic' slide decks?</q>
+</div>
+
+<div class="step slide" data-x="1000" data-y="-1500">
+    <q>Would you like to <strong>impress your audience</strong> with <strong>stunning visualization</strong> of your talk?</q>
+</div>
+```
+
+--------------------------------------------------------
+
+AceSlide
+
+```
+<div class="frame overlay" name="指定顺序">
+  <ul class="overlay phantom" tabindex="1-">
+    <li tabindex="2-">对于<i>overlay</i>是可以在节点当中，使用 <i>tabindex</i> 指定出现的顺序的。</li>
+    <li class="phantom" tabindex="3-">使用<i>class="phantom"</i>可以提前占位。</li>
+  </ul>
+
+  <xmp class="prettyprint" tabindex="0-">
+    <div class="frame overlay" name="指定顺序">
+      <ul class="overlay phantom" tabindex="1-">
+        <li tabindex="2-">对于<i>overlay</i>是可以在节点当中，使用 <i>tabindex</i> 指定出现的顺序的。</li>
+        <li class="phantom" tabindex="3-">使用<i>class="phantom"</i>可以提前占位。</li>
+      </ul>
+    </div>
+  </xmp>
+</div>
+```
+
+--------------------------------------------------------
+
+全是 HTML 。
+
+你觉得去手写这些 HTML 是一个很愉快有趣的过程？
+
+……
+
+--------------------------------------------------------
+
+至少我不这样认为。
+
+曾经在 LaTeX 中使用 Beamer 时，有人这样说过：
+
+	我已经写完我的文档了，我需要演示它时，我只需要重新去配置它，调整纸张尺寸与字体大小就可以了，我不需要使用 Beamer 再去重新写一遍我的文档。
+
+--------------------------------------------------------
+
+今天的情况与当初仍然相似。我依然使用一种源码格式书写文档，然后根据需求，生成不同格式的其它文件：
+
+```
+txt2Tags
+    => html (for web)
+    => latex (for print)
+    => mgp (for slide)
+```
+
+当我在浏览器中看生成的 HTML 文件时，会觉得，嘿：
+
+//我重新“配置”一下这个 HTML 文件它就可以用于演示了。//
+
+**所有互联网上的页面，我重新“配置”一下，它们都可以用于演示！**
+
+——我干嘛还要为演示去写那么多的 HTML 代码呢。
+
+--------------------------------------------------------
+
+所以，关键的问题是：
+
+**让一个应用去适应不同的页面，而不是为一个应用专门去写一个页面。**
+
+
+=如何使用它=
 
 - Right / Space, 下一页
 - Left / Back, 上一页
@@ -18,94 +114,179 @@ AceSlideII HTML演示文档工具
 
 (请使用浏览器的缩放功能放大页面)
 
-: >>>
-    注释这样写
+--------------------------------------------------------
 
 
+通过 js 把页面结构改成 AceSlideII 需要的即可。
 
-=功能=
+默认处理的结构：
 
-- 使用普通的 HTML 文档.
-- 一键转换文档为演示模式.
-- 一个 Canvas 层用以手写标记.
-- 通过一个 Web 服务器支持联机操作.
-- 支持手机浏览, 控制.
+```
+-----------------------------------
+| body                            |
+|  ---------------------------    |
+|  | wrapper                 |    |
+|  |                         |    |
+|  |  ------------ h1/h2/hr  |    |
+|  |                         |    |
+|  |                         |    |
+|  |                         |    |
+|  |  ------------           |    |
+|  |                         |    |
+|  |                         |    |
+|  |                         |    |
+|  |  ------------           |    |
+|  ---------------------------    |
+-----------------------------------
+```
 
-
-=普通 HTML 文档=
-
-使用 HTML 作演示文档的项目不少, 比如我之前的 AceSlide (https://github.com/AceFantasy/AceSlide) 也是这样的一个东西.
-
-但是在使用过程当中, 我觉得这些东西用起来并不好用:
-
-- **必须手工书写 HTML 代码**
-
-
-这点很麻烦. 事实上本质就变成需要用 HTML 写一个特定的文件.
-
-考虑另外的情况, 我们很多人会用 HTML 写文档, 写博客什么的. 但是很少人是直接写 HTML 代码的. 相应地, 我们会使用 markdown , txt2tags , reSt 这些标记语言来写. 然后再转换成 HTML . 这样做的还有一个好处就是, 我们写的文档, 除了可以转换成 HTML 之外, 还可以转换成其它格式的文件, 比如 LaTeX , DocBook 等.
-
-那么我就想, 我们应该用这些简单的标记语言来写演示文档. 更进一步, 我们转换出来的 HTML 文件, 通过一些格式的小调整, 就可以直接用于演示.
-
-于是, 最后我就在我自己定制的 txt2tags 转换出来的 HTML 基础上, 通过一些简单的 js , 实现了一套完整的演示文档工具.
+然后 AceSlideII 自己会把页面进行切分。
 
 --------------------------------------------------------
 
-这套工具 AceSlideII 与其它工具, 比如 AceSlide 最大的不同之处, 在于, 其它工具是要求 HTML 来适应工具. 而 AceSlideII 力求做到的是它去适应各种 HTML . 也就是说, 现在你们看的这份文档, 可以变成演示模式, 只是 AceSlideII 适应了我的 txt2tags 转换出来的 HTML 而已. 通过简单的解析代码, 每个人都可以让它适应其它的 HTML 格式. Discuz 的论坛, 微博页面, 都没有问题.
-
-代码上来看, 所要做的, 仅仅是重写 ``split_body`` 这个方法.
+//载入外部 js 的方式？//
 
 ```
-//把body下的第一个节点分切,并隐藏全部结点
-//这是一个初始化方法
-var split_body = dojo.hitch({frames: frames},
-  function(width, height){
-    var frame = [];
-    var that = this;
-
-    //最外层的那个div
-    var wrapper = dojo.body().children[0];
-    dojo.style(dojo.body(), 'backgroundImage', 'none');
-    that.frames.width = width;
-    that.frames.height = height;
-    dojo.style(wrapper, 'width', width + 'px');
-    ...
+<a href="javascript: (function(){ if((typeof dojo) != 'undefined'){return} window.dojoConfig = { async: true , packages: [ {name: 'AceSlideII', location: 'http://localhost:8000'} ] , deps: ['AceSlideII/init'] , callback: function(init){ init({width: 600}); } }; var n = document.createElement('script'); n.type='text/javascript'; n.src='http://ajax.googleapis.com/ajax/libs/dojo/1.8.0/dojo/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); })();">点我演示此文档</a>
 ```
 
-=一键转换=
+```
+javascript: (function(){ if((typeof dojo) != 'undefined'){return} window.dojoConfig = { async: true , packages: [ {name: 'AceSlideII', location: 'http://zouyesheng.com/static/AceSlideII'} ] , deps: ['AceSlideII/init'] , callback: function(init){ init({width: 600}); } }; var n = document.createElement('script'); n.type='text/javascript'; n.src='http://ajax.googleapis.com/ajax/libs/dojo/1.8.0/dojo/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); })();
+```
 
-前面说了, AceSlideII 力求做到去适应 HTML 文件. 那么, 也就很容易地实现, 将 AceSlideII 添加到已存在的 HTML 文件之外, 达到转换的目的. 
-
-这个转换过程, 实际就是引入两个 js 文件. 然后 js 在当前的 HTML 上下文执行, 结果就是我们需要的演示文件了. 
-
-这过程, 不需要手动改原始的 HTML 文件. 只需要添加一个书签就可以搞定. 比如, 把:
-
-'''
-<a href="javascript: (function(){ if((typeof dojo) != 'undefined'){return} window.dojoConfig = { async: true , packages: [ {name: 'AceSlideII', location: 'http://zouyesheng.com/static/AceSlideII'} ] , deps: ['AceSlideII/init'] , callback: function(init){ init({width: 600}); } }; var n = document.createElement('script'); n.type='text/javascript'; n.src='http://ajax.googleapis.com/ajax/libs/dojo/1.8.0/dojo/dojo.js'; document.getElementsByTagName('head')[0].appendChild(n); })();">演示此文档</a>
-'''
-
-收藏到书签栏, 需要时点一下就可以了(你直接点击也行). 
+放入收藏夹，就可以应用于任意的页面。
 
 
-=联机功能=
+--------------------------------------------------------
 
-项目中的一个 Tornado 实现的服务器端. 服务器启动之后, 可以把任意一个文档接入服务器.
+通过 URL 匹配不同的页面，然后定义不同的处理规则。
 
-这时, js 会自动上传页面内容, 然后页面会重定向到服务器的路径.
+```
+//映射各种规则
+define([], function(){
+  var rules = [
+      [/^http:\/\/zouyesheng\.com.*$/, 'default']
+    , [/^http:\/\/localhost.*$/, 'default']
+    , [/^http:\/\/vp\.ffsky\.cn\/chrs2\.htm$/, 'vp2_chrs2']
+    , [/^http:\/\/cwebmail\.mail\.163\.com.*$/, 'mail_163']
+    , [/^https?:\/\/www\.google\.com\/search.*$/, 'google_search']
+    , [/^https?:\/\/www\.google\.com\.hk\/search.*$/, 'google_search']
+  ];
+  return rules;
+});
+```
 
-在服务器支持的情况下, 可以使用同一份文档的联机操作.
+--------------------------------------------------------
 
-接入的客户端分成"控制端"和"浏览端"两种.
+不同的规则，就是不同的“预处理”，把页面结构改成 AceSlideII 需要的，比如对于 Google 的搜索结果：
 
-控制端可以随意控制文档, 它做的所有操作(翻页, 标记), 都会在所有的浏览端同步呈现.
+```
+//google搜索结果
+define(['dojo/dom', 'dojo/query', 'dojo/dom-construct', 'dojo/_base/window', 'dojo/dom-attr'],
+  function(dom, query, cstr, win, attr){
+    var rule = function(callback){
+      var wrapper = dom.byId('rso');
+      query('li', wrapper).forEach(function(item){
+        cstr.create('hr', {}, item, 'after');
+      });
+      cstr.place(wrapper, win.body(), 'after');
+      cstr.empty(win.body());
+      cstr.place(wrapper, win.body(), 'first');
+      attr.set(win.body(), 'style', 'visibility: visible !important');
+      callback();
+    }
+    return rule;
+  }
+);
+```
 
-控制端也可以有多个.
+=它还能做什么=
+
+我们既然可以载入自己的 js ，那么可以得到页面上所有页面，也可以对页面做任何事。
+
+我曾经使用一种笨拙的方法做过尝试：
+
++ 在 firefox 下通过油猴插件写了修改页面的相关 js 。
++ 这个脚本在 google scholar 页面生效。
++ 脚本会在页面中的指定指定位置添加一个按钮，点击后把相关数据提交到指定服务器。
++ 服务器端调用本机的 COM 接口，把数据导入一款桌面软件。
 
 
-=手机端支持=
+视频：http://v.youku.com/v_show/id_XMTc1OTQ3NDA4.html
 
-项目中添加了对手机浏览器的有限支持. 配合上面的联机功能, 可以实现在手机端控制页面的翻页.
+现在看来，油猴插件可以不要（它有提供跨域的 xhr ），直接使用收藏夹来手动激活应用，就像“美味书签”，“云输入法”那样。
 
-这样, 演示时人拿着手机就可以随意走动了.
 
-当然, 需要在 AceSlideII 中使用专业的摇控工具我觉得也很容易扩展吧.
+--------------------------------------------------------
+
+一个例子：
+
++ 在网易邮箱中载入自己的 js 。
++ 解析页面，获取所有联系人信息。
++ 把这些信息提交到搜狐邮箱的联系人创建接口。
+
+你可以操纵页面，用于演示，或者不用于演示：
+
+```
+var to_sohu = function(user){
+  var name = user[0];
+  var mbox = user[1];
+  var iframe = cstr.create('iframe', {name: mbox, style: {display: 'none'}}, win.body(), 'last');
+  var form = cstr.create('form', {  method: 'post'
+                                  , target: mbox
+                                  , action: 'http://mail.sohu.net/address/modContact'
+                                  , style: {display: 'none'}}, win.body(), 'last');
+  form.innerHTML += '<input type="hidden" name="type" value="4" />';
+  form.innerHTML += '<input type="hidden" name="birthday" value="--" />';
+  form.innerHTML += '<input type="hidden" name="nickname" value="' + name + '" />';
+  form.innerHTML += '<input type="hidden" name="personalemail" value="' + mbox + '" />';
+  form.submit();
+  cstr.create('p', {innerHTML: name + ' >> ' + mbox + ' ... ok'},
+              win.body().children[0], 'last');
+}
+
+var rule = function(callback){
+  var users = parse_contact();
+  for(var i = 0, l = users.length; i < l; i++){
+    to_sohu(users[i]);
+  }
+  callback();
+};
+
+```
+
+
+=服务器端支持=
+
+现在我们回到演示的主题上。
+
+在做 AceSlide 时，它就可以在服务器端的支持下实现远程控制。现在的 AceSlideII 继承并完善了这个想法。在服务器端的支持下，你可以：
+
++ 上传任意页面到服务器端，这样别人访问服务器端就可以得到页面内容。
++ 从任意一个客户端控制演示文档，包括手机浏览器。
++ 控制者的所有操作，包括标记，会同步到所有的非控制者客户端。
+
+
+```
+   +-------+
+   |       |
+   |   C   |
+   +-------+       
+       |           
+       |             +--------+
+       |             |        |                +---------+
+       |   upload    | S      |     control    |         |
+       +-----------> |        | <--------------+    C    |
+                     +--------+                |         |
+                          |                    +---------+
+            get & sync    |                 
+         +----------------+-------------+
+         |                |             |
+         v                v             v
+     +-------+      +-----+--+     +----+---+
+     |       |      |        |     |        |
+     |   C   |      |   C    |     |   C    |
+     +-------+      +--------+     +--------+
+
+```
+
