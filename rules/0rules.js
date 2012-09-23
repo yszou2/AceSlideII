@@ -4,7 +4,9 @@ define([], function(){
       [/^http:\/\/zouyesheng\.com.*$/, 'default']
     , [/^http:\/\/localhost.*$/, 'default']
     , [/^http:\/\/vp\.ffsky\.cn\/chrs2\.htm$/, 'vp2_chrs2']
-    , [/^http:\/\/cwebmail.mail.163.com.*$/, 'mail_163']
+    , [/^http:\/\/cwebmail\.mail\.163\.com.*$/, 'mail_163']
+    , [/^https?:\/\/www\.google\.com\/search.*$/, 'google_search']
+    , [/^https?:\/\/www\.google\.com\.hk\/search.*$/, 'google_search']
   ];
   return rules;
 });
