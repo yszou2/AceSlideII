@@ -206,6 +206,7 @@ Handlers = (
     ("/(\d+)", SlideHandler),
     ("/pull", PullHandler),
     ("/push", PushHandler),
+    ("/img/(.*)", tornado.web.StaticFileHandler, {'path': '/home/zys/Dropbox/doc/img/'}),
 
     ("/test", TestHandler),
 )
